@@ -1,0 +1,7 @@
+src/
+tsconfig.json
+tsconfig.build.json
+nodemon.json
+.prettierrc
+coverage/
+.vscode/
