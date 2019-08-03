@@ -1,6 +1,6 @@
 {
   "name": "@nestjsplus/cookies",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "Decorators Managing Cookies with NestJS",
   "author": "John Biundo <johnfbiundo@gmail.com>",
   "license": "MIT",
@@ -23,6 +23,11 @@
   "publishConfig": {
     "access": "public"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nestjsplus/cookies"
+  },
+  "bugs": "https://github.com/nestjsplus/cookies/issues",
   "dependencies": {
     "reflect-metadata": "0.1.12"
   },
