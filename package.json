@@ -1,6 +1,6 @@
 {
   "name": "@nestjsplus/cookies",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Decorators Managing Cookies with NestJS",
   "author": "John Biundo <johnfbiundo@gmail.com>",
   "license": "MIT",

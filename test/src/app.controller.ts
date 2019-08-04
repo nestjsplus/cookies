@@ -75,7 +75,7 @@ export class AppController {
   }
 
   @Get('dget')
-  dget(@Request() req, @Cookies() cookies) {
+  dget(@Cookies() cookies) {
     return cookies;
   }
 
