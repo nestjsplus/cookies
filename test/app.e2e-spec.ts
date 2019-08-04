@@ -47,6 +47,76 @@ describe('AppController (e2e)', () => {
       });
   });
 
+  it('/cookieSet1 should set cookie3, cookie4', async () => {
+    return await agent
+      .get('/cookieSet1')
+      .expect(200)
+      .expect(res => {
+        const cookie3 = res.header['set-cookie'].find(
+          cookie => cookie.substring(0, 7) === 'cookie3',
+        );
+        const cookie4 = res.header['set-cookie'].find(
+          cookie => cookie.substring(0, 7) === 'cookie4',
+        );
+        expect(cookie3).toMatch(/cookie3%20value/);
+        expect(cookie4).toMatch(/cookie4%20value/);
+      });
+  });
+
+  it('/cookieSet2 should set cookie1, cookie3, cookie4', async () => {
+    return await agent
+      .get('/cookieSet2')
+      .expect(200)
+      .expect(res => {
+        const cookie1 = res.header['set-cookie'].find(
+          cookie => cookie.substring(0, 7) === 'cookie1',
+        );
+        const cookie3 = res.header['set-cookie'].find(
+          cookie => cookie.substring(0, 7) === 'cookie3',
+        );
+        const cookie4 = res.header['set-cookie'].find(
+          cookie => cookie.substring(0, 7) === 'cookie4',
+        );
+        expect(cookie1).toMatch(/cookie1%20value/);
+        expect(cookie3).toMatch(/cookie3%20value/);
+        expect(cookie4).toMatch(/cookie4%20value/);
+      });
+  });
+
+  it('/cookieSet3 should override cookie3, set cookie4', async () => {
+    return await agent
+      .get('/cookieSet3')
+      .expect(200)
+      .expect(res => {
+        const cookie3 = res.header['set-cookie'].find(
+          cookie => cookie.substring(0, 7) === 'cookie3',
+        );
+        const cookie4 = res.header['set-cookie'].find(
+          cookie => cookie.substring(0, 7) === 'cookie4',
+        );
+        expect(cookie3).toMatch(/overridden/);
+        expect(cookie4).toMatch(/cookie4%20value/);
+      });
+  });
+
+  it('/cookieSet4 should set cookie3, cookie4 with httpOnly', async () => {
+    return await agent
+      .get('/cookieSet4')
+      .expect(200)
+      .expect(res => {
+        const cookie3 = res.header['set-cookie'].find(
+          cookie => cookie.substring(0, 7) === 'cookie3',
+        );
+        const cookie4 = res.header['set-cookie'].find(
+          cookie => cookie.substring(0, 7) === 'cookie4',
+        );
+        expect(cookie3).toMatch(/cookie3%20value/);
+        expect(cookie4).toMatch(/cookie4%20value/);
+        expect(cookie3).toMatch(/HttpOnly/);
+        expect(cookie4).toMatch(/HttpOnly/);
+      });
+  });
+
   it('/dget should get cookie sent', async () => {
     const testCookieName = 'cookie1';
     const testCookieVal = 'mycookie';

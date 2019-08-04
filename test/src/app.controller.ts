@@ -12,6 +12,12 @@ import {
   Cookies,
   SignedCookies,
 } from '../../src/decorators';
+import { CookieSettings } from '../../src/interfaces';
+
+const tcookies: CookieSettings[] = [
+  { name: 'cookie3', value: 'cookie3 value' },
+  { name: 'cookie4', value: 'cookie4 value' },
+];
 
 @Controller()
 export class AppController {
@@ -60,6 +66,32 @@ export class AppController {
   clear(@Request() req) {
     req._cookies = [{ name: 'cookie1' }];
     return { message: 'cookies cleared!' };
+  }
+
+  @SetCookies(tcookies)
+  @Get('cookieSet1')
+  cookieSet1() {
+    return;
+  }
+
+  @SetCookies(tcookies)
+  @Get('cookieSet2')
+  cookieSet2(@Request() req) {
+    req._cookies = [{ name: 'cookie1', value: 'cookie1 value' }];
+    return;
+  }
+
+  @SetCookies(tcookies)
+  @Get('cookieSet3')
+  cookieSet3(@Request() req) {
+    req._cookies = [{ name: 'cookie3', value: 'overridden' }];
+    return;
+  }
+
+  @SetCookies({ httpOnly: true }, tcookies)
+  @Get('cookieSet4')
+  cookieSet4() {
+    return;
   }
 
   @ClearCookies('cookie1', 'cookie2')

@@ -123,27 +123,45 @@ get(@SignedCookies('cookie1') cookie1)
 ```
 
 ### Setting Cookies
-Use the `@SetCookies()` route handler method decorator to set cookies.  Here's how
-it works:
-- Set default cookie options in the `@SetCookies()` decorator itself by passing a
-`CookieOptions` object (see [below](#cookieoptions)). Options set on individual cookies,
-if provided, override these defaults.
-- Inside the decorated method, you provide the cookie name/value pairs to be set when the
-route handler method runs.  Provide these values by passing them on the `req._cookies`
-array property.  For example:
+Use the `@SetCookies()` route handler method decorator to set cookies.
+
+Here's the API:
 ```typescript
-req._cookies = [
-  {
-    name: 'cookie1',
-    value: 'chocolate chip',
-    options: {
-      signed: true,
-      sameSite: true,
-    },
-  },
-  { name: 'cookie2', value: 'oatmeal raisin' },
-];
+@SetCookies(
+  options?: CookieOptions,
+  cookies?: CookieSettings | CookieSettings[]
+)
 ```
+
+Here's how it works:
+- Set default [cookie options](#cookieoptions) by passing a
+`CookieOptions` object. Options set on individual cookies,
+if provided, override these defaults.
+- For "static" cookies, where the cookie name and/or value are known at compile time,
+- you can set them in the `@SetCookies()` decorator by passing a [CookieSettings](#cookie-settings)
+object.
+- For "dynamic"cookies, where the cookie name and/or value are computed at run-time,
+you can provide the cookie name/value pairs to be set when the
+route handler method runs.  Provide these values by passing them on the `req._cookies`
+array property.  Of course if you are using this method, you must access the `request` object,
+so you must bind `@Request()` to a route parameter.  For example:
+```typescript
+set(<at>Request() req) {
+  const cookie1Value = 'chocoloate chip';
+  req._cookies = [
+    {
+      name: 'cookie1',
+      value: cookie1Value,
+      options: {
+        signed: true,
+        sameSite: true,
+      },
+    },
+    { name: 'cookie2', value: 'oatmeal raisin' },
+  ];
+  ...
+```
+#### Cookie Settings
 - As shown above, each cookie has the shape:
 ```typescript
 interface CookieSettings {

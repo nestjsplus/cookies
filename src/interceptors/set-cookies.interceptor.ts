@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+import unionBy = require('lodash/unionBy');
+import { CookieSettings } from '../interfaces';
 
 import {
   Injectable,
@@ -20,23 +22,27 @@ export class SetCookiesInterceptor implements NestInterceptor {
     const request = ctx.getRequest();
     const handler = context.getHandler();
     const options = Reflect.getMetadata('cookieOptions', handler);
+    const cookies = Reflect.getMetadata('cookieSettings', handler);
     request._cookies = [];
     return next
       .handle()
       .toPromise()
       .then(res => {
-        if (request._cookies) {
-          for (const cookie of request._cookies) {
-            const cookieOptions = cookie.options
-              ? cookie.options
-              : options
-              ? options
-              : {};
-            if (cookie.value) {
-              response.cookie(cookie.name, cookie.value, cookieOptions);
-            } else {
-              response.clearCookie(cookie.name);
-            }
+        const allCookies = unionBy(
+          request._cookies,
+          cookies,
+          item => item.name,
+        ) as CookieSettings[];
+        for (const cookie of allCookies) {
+          const cookieOptions = cookie.options
+            ? cookie.options
+            : options
+            ? options
+            : {};
+          if (cookie.value) {
+            response.cookie(cookie.name, cookie.value, cookieOptions);
+          } else {
+            response.clearCookie(cookie.name);
           }
         }
         return res || undefined;
