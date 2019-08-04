@@ -26,47 +26,23 @@ npm install @nestjsplus/cookies
 NestJS doesn't currently have decorators for getting and setting cookies.  While it's not
 too hard to read cookies, it's convenient to have a decorator to do so.
 
+```typescript
+@Post('login')
+login(@Cookies() cookies) {
+  console.log('Got cookies:', cookies);
+}
+```
+
 Setting cookies is a little less straightforward.  You either need to utilize the platform-specific
 response (`res`) object, or write an interceptor. The former is pretty straightforward, though
 takes a non-Nest-like imperative style.  The latter puts you into [manual response mode](https://docs.nestjs.com/controllers#routing),
 meaning you can no longer rely on features like `@Render()`, `@HttpCode()` or [interceptors that modify the response](https://docs.nestjs.com/interceptors#response-mapping), and making testing harder (you'll have to mock the response
 object, etc.).  The `@SetCookies()` decorator from this package wraps an interceptor
-in a declarative Decorator that solves these issues.
+in a declarative decorator that solves these issues.
 
 Collectively, the `@Cookies()`, `@SignedCookies()`, `@SetCookies()` and `@ClearCookies()` decorators in this package
 provide a convenient set of features that make it easier to manage cookies in a standard and declarative way,
 and minimize boilerplate code.
-
-### Restrictions
-#### Express Only
-These decorators currently only work with Nest applications running on `@platform-express`.  Fastify support is not
-currently available.
-
-#### Cookie Parser
-Note that reading cookies depends on the standard Express [cookie-parser]() package.  Be sure to install it
-and configure it in your app.  For example:
-
-```bash
-npm install cookie-parser
-```
-
-and in your `main.ts` file:
-```typescript
-import { NestFactory } from '@nestjs/core';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import { AppModule } from './app.module';
-
-import * as CookieParser from 'cookie-parser';
-
-async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
-
-  app.use(CookieParser('secret'));
-
-  await app.listen(3000);
-}
-bootstrap();
-```
 
 ### Importing the Decorators
 Import the decorators, just as you would other Nest decorators, in the controllers
@@ -85,7 +61,7 @@ export class AppController {
 
 ### Reading Cookies
 As mentioned, reading cookies requires the `cookie-parser` package to be installed.
-Reading signed cookies requires that the `CookieParser` be configured with a
+Reading **signed cookies** requires that the `CookieParser` be configured with a
 [signing secret](https://github.com/expressjs/cookie-parser#cookieparsersecret-options) as
 shown in the `bootstrap()` function above.
 
@@ -138,8 +114,26 @@ Here's how it works:
 `CookieOptions` object. Options set on individual cookies,
 if provided, override these defaults.
 - For "static" cookies, where the cookie name and/or value are known at compile time,
-- you can set them in the `@SetCookies()` decorator by passing a [CookieSettings](#cookie-settings)
-object.
+you can set them in the `@SetCookies()` decorator by passing a [CookieSettings](#cookie-settings)
+object.  For example:
+```typescript
+@SetCookies({name: 'cookie1', value: 'cookie 1 value'})
+@Get('set')
+set() {
+  ...
+}
+```
+You can mix and match `CookieOptions` and `CookieSettings` as needed:
+```typescript
+@SetCookies({httpOnly: true},
+ [
+   {name: 'cookie1', value: 'cookie 1 value'},
+   {name: 'cookie2', value: 'cookie 2 value', {httpOnly: false}}
+ ]
+)
+```
+As a result of the above, `cookie1` will be set as `HttpOnly`, but `cookie2` will not.
+
 - For "dynamic"cookies, where the cookie name and/or value are computed at run-time,
 you can provide the cookie name/value pairs to be set when the
 route handler method runs.  Provide these values by passing them on the `req._cookies`
@@ -161,6 +155,10 @@ set(<at>Request() req) {
   ];
   ...
 ```
+- The route handler otherwise proceeds as normal. It can return values, and it can
+use other route handler method decorators (such as `@Render()`) and other route
+parameter decorators (such as `@Headers()`, `@Query()`).
+
 #### Cookie Settings
 - As shown above, each cookie has the shape:
 ```typescript
@@ -183,9 +181,6 @@ interface CookieSettings {
 specified in the `@SetCookies()` decorator.  If omitted for a cookie, they default
 to options specified on the `@SetCookies()` decorator, or [Express's default cookie settings](https://expressjs.com/en/api.html#res.cookie)
 if none were set.
-- The route handler otherwise proceeds as normal. It can return values, and it can
-use other route handler method decorators (such as `@Render()`) and other route
-parameter decorators (such as `@Headers()`, `@Query()`).
 
 #### CookieOptions
 Cookie options may be set at the method level (`@SetCookies()`), providing a set of
@@ -248,6 +243,43 @@ kill() {
   return { message: 'cookies killed!' };
 }
 ```
+
+### Restrictions
+#### Express Only
+These decorators currently only work with Nest applications running on `@platform-express`.  Fastify support is not
+currently available.
+
+#### Cookie Parser
+Note that reading cookies depends on the standard Express [cookie-parser]() package.  Be sure to install it
+and configure it in your app.  For example:
+
+```bash
+npm install cookie-parser
+```
+and in your `main.ts` file:
+```typescript
+import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { AppModule } from './app.module';
+
+import * as CookieParser from 'cookie-parser';
+
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.use(CookieParser('secret'));
+
+  await app.listen(3000);
+}
+bootstrap();
+```
+
+#### Decorators Can't Access `this`
+Note that decorators have access to the `class` (Controller), but not the instance.  This means that, for example,
+if you want to pass a variable to a `SetCookies()` decorator, you should pass a variable set in the outer scope of
+the file (e.g., a `const` above the controller class definition), as opposed to a property on the controller class.
+
+See [the controller in the test folder](https://github.com/nestjsplus/cookies/blob/master/test/src/app.controller.ts) for an example.
 
 ## Change Log
 
