@@ -24,7 +24,7 @@ npm install @nestjsplus/cookies
 
 ### Motivation
 NestJS doesn't currently have decorators for getting and setting cookies.  While it's not
-too hard to read cookies, it's convenient to have a decorator to do so.
+too hard to read cookies, it's convenient to have a parameter decorator to do so.
 
 ```typescript
 @Post('login')
@@ -35,8 +35,10 @@ login(@Cookies() cookies) {
 
 Setting cookies is a little less straightforward.  You either need to utilize the platform-specific
 response (`res`) object, or write an interceptor. The former is pretty straightforward, though
-takes a non-Nest-like imperative style.  The latter puts you into [manual response mode](https://docs.nestjs.com/controllers#routing),
-meaning you can no longer rely on features like `@Render()`, `@HttpCode()` or [interceptors that modify the response](https://docs.nestjs.com/interceptors#response-mapping), and making testing harder (you'll have to mock the response
+takes a non-Nest-like imperative style.  It also puts you into
+[manual response mode](https://docs.nestjs.com/controllers#routing),
+meaning you can no longer rely on features like `@Render()`, `@HttpCode()` or [interceptors that modify the response](https://docs.nestjs.com/interceptors#response-mapping),
+and makes testing harder (you'll have to mock the response
 object, etc.).  The `@SetCookies()` decorator from this package wraps an interceptor
 in a declarative decorator that solves these issues.
 
@@ -44,10 +46,14 @@ Collectively, the `@Cookies()`, `@SignedCookies()`, `@SetCookies()` and `@ClearC
 provide a convenient set of features that make it easier to manage cookies in a standard and declarative way,
 and minimize boilerplate code.
 
+### See Also
+If you like these decorators, you may also be interested in the
+[NestJS Redirect decorator](https://github.com/nestjsplus/redirect).
+
+
 ### Importing the Decorators
 Import the decorators, just as you would other Nest decorators, in the controllers
-that use them.  Use `import { ...decorators... } from @nestjsplus/cookies` as shown
-below:
+that use them as shown below:
 
 ```typescript
 import { Controller, Get } from '@nestjs/common';
@@ -60,12 +66,12 @@ export class AppController {
 ```
 
 ### Reading Cookies
-As mentioned, reading cookies requires the `cookie-parser` package to be installed.
+Reading cookies requires the [cookie-parser](https://github.com/expressjs/cookie-parser#readme)
+package to be installed.  [See here for details](#cookie-parser).
 Reading **signed cookies** requires that the `CookieParser` be configured with a
-[signing secret](https://github.com/expressjs/cookie-parser#cookieparsersecret-options) as
-shown in the `bootstrap()` function above.
+[signing secret](https://github.com/expressjs/cookie-parser#cookieparsersecret-options).
 
-#### Regular (not signed) Cookies
+#### Regular (non-signed) Cookies
 Use the `@Cookies()` route parameter decorator to get "regular" cookies.
 ```typescript
 @Get('get')
@@ -75,7 +81,7 @@ get(@Cookies() cookies): string {
 }
 ```
 
-This will bind an array of **all** (not signed) cookies to the `cookies` parameter.
+This will bind an array of **all** (non-signed) cookies to the `cookies` parameter.
 See [below](#accessing-specific-named-cookies) to access a named cookie.
 
 #### Signed Cookies
@@ -95,11 +101,11 @@ Pass the name of a specific cookie in the `@Cookies()` or `@SignedCookies()` dec
 to access a specific cookie:
 
 ```typescript
-get(@SignedCookies('cookie1') cookie1)
+get(@SignedCookies('cookie1') cookie1) { ... }
 ```
 
 ### Setting Cookies
-Use the `@SetCookies()` route handler method decorator to set cookies.
+Use the `@SetCookies()` route handler *method decorator* to set cookies.
 
 Here's the API:
 ```typescript
@@ -109,13 +115,13 @@ Here's the API:
 )
 ```
 
-Here's how it works:
-- Set default [cookie options](#cookieoptions) by passing a
-`CookieOptions` object. Options set on individual cookies,
-if provided, override these defaults.
-- For "static" cookies, where the cookie name and/or value are known at compile time,
+Here's how it works. You have two options, depending on whether the cookie settings
+are static or dynamic.
+1. For *static* cookies, where the cookie name and/or value are known at compile time,
 you can set them in the `@SetCookies()` decorator by passing a [CookieSettings](#cookie-settings)
-object.  For example:
+object.
+
+    <br/>For example:
 ```typescript
 @SetCookies({name: 'cookie1', value: 'cookie 1 value'})
 @Get('set')
@@ -123,24 +129,18 @@ set() {
   ...
 }
 ```
-You can mix and match `CookieOptions` and `CookieSettings` as needed:
-```typescript
-@SetCookies({httpOnly: true},
- [
-   {name: 'cookie1', value: 'cookie 1 value'},
-   {name: 'cookie2', value: 'cookie 2 value', {httpOnly: false}}
- ]
-)
-```
-As a result of the above, `cookie1` will be set as `HttpOnly`, but `cookie2` will not.
 
-- For "dynamic"cookies, where the cookie name and/or value are computed at run-time,
+2. For *dynamic* cookies, where the cookie name and/or value are computed at run-time,
 you can provide the cookie name/value pairs to be set when the
 route handler method runs.  Provide these values by passing them on the `req._cookies`
-array property.  Of course if you are using this method, you must access the `request` object,
-so you must bind `@Request()` to a route parameter.  For example:
+array property.  (The decorator creates the `_cookies` property automatically for you).
+**Note:** Of course if you are using this technique, you are de facto accessing
+the `request` object, so you must bind `@Request()` to a route parameter.
+
+    <br/>For example:
+
 ```typescript
-set(<at>Request() req) {
+set(@Request() req) {
   const cookie1Value = 'chocoloate chip';
   req._cookies = [
     {
@@ -155,12 +155,28 @@ set(<at>Request() req) {
   ];
   ...
 ```
-- The route handler otherwise proceeds as normal. It can return values, and it can
-use other route handler method decorators (such as `@Render()`) and other route
-parameter decorators (such as `@Headers()`, `@Query()`).
+
+#### Defaults and overriding
+You can mix and match `CookieOptions` and `CookieSettings` in the decorator and
+in the method body as needed.  This example
+shows *dynamic* cookies with defaults inherited from the decorator, and
+overrides in the body:
+```typescript
+@SetCookies({httpOnly: true},
+ [
+   {name: 'cookie1', value: 'cookie 1 value'},
+   {name: 'cookie2', value: 'cookie 2 value', {httpOnly: false}}
+ ]
+)
+```
+As a result of the above, `cookie1` will be set as `HttpOnly`, but `cookie2` will not.
+
+- Set default [cookie options](#cookieoptions) by passing a
+`CookieOptions` object in the decorator. Options set on individual cookies,
+if provided, override these defaults.
 
 #### Cookie Settings
-- As shown above, each cookie has the shape:
+As shown above, each cookie you set has the shape:
 ```typescript
 interface CookieSettings {
   /**
@@ -177,7 +193,7 @@ interface CookieSettings {
   options?: CookieOptions;
 }
 ```
-- If `options` are provided for a cookie, they completely replace any options
+If `options` are provided for a cookie, they completely replace any options
 specified in the `@SetCookies()` decorator.  If omitted for a cookie, they default
 to options specified on the `@SetCookies()` decorator, or [Express's default cookie settings](https://expressjs.com/en/api.html#res.cookie)
 if none were set.
@@ -226,8 +242,13 @@ interface CookieOptions {
   sameSite?: boolean | string;
 }
 ```
+#### Route Handler Results and Behavior
+The route handler otherwise proceeds as normal. It can return values, and it can
+use other route handler method decorators (such as `@Render()`) and other route
+parameter decorators (such as `@Headers()`, `@Query()`).
+
 #### Example
-Setting cookies isn't hard!  See [a full example here in the test folder](https://github.com/nestjsplus/cookies/blob/master/test/src/app.controller.ts).
+Setting cookies isn't hard!  See a [full example here in the test folder](https://github.com/nestjsplus/cookies/blob/master/test/src/app.controller.ts).
 
 ### Clearing (deleting) Cookies
 
