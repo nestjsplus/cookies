@@ -8,7 +8,7 @@ import { ClearCookiesInterceptor } from '../interceptors/clear-cookies.intercept
  * @param cookies List of cookie names to be cleared.
  *
  */
-export function ClearCookies(...cookies: string[] | undefined) {
+export function ClearCookies(...cookies: string[]) {
   return (target, propertyKey, descriptor) => {
     SetMetadata('cookieNames', cookies)(target, propertyKey, descriptor);
     UseInterceptors(ClearCookiesInterceptor)(target, propertyKey, descriptor);
