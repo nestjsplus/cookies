@@ -9,14 +9,12 @@ import {
   CallHandler,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { Response } from 'express';
 
 @Injectable()
 export class SetCookiesInterceptor implements NestInterceptor {
-  intercept(
-    context: ExecutionContext,
-    next: CallHandler,
-  ): Promise<Observable<any>> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const ctx = context.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest();
@@ -24,10 +22,8 @@ export class SetCookiesInterceptor implements NestInterceptor {
     const options = Reflect.getMetadata('cookieOptions', handler);
     const cookies = Reflect.getMetadata('cookieSettings', handler);
     request._cookies = [];
-    return next
-      .handle()
-      .toPromise()
-      .then(res => {
+    return next.handle().pipe(
+      tap(() => {
         const allCookies = unionBy(
           request._cookies,
           cookies,
@@ -45,7 +41,7 @@ export class SetCookiesInterceptor implements NestInterceptor {
             response.clearCookie(cookie.name);
           }
         }
-        return res || undefined;
-      });
+      }),
+    );
   }
 }

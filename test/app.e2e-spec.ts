@@ -34,7 +34,7 @@ describe('AppController (e2e)', () => {
       // tslint:disable-next-line: quotemark
       .expect("cookie1 set to 'Hello World!', cookie2 set to 'c2 value'")
       .expect(res => {
-        expect(res.header['set-cookie']).toHaveLength(1);
+        expect(res.header['set-cookie']).toHaveLength(2);
         saveCookie1 = res.header['set-cookie'].find(
           (cookie: string) => cookie.includes('cookie1'),
         );
