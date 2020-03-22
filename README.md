@@ -16,6 +16,14 @@
   </a>
 </div>
 
+### Version Compatibility - Nest v7
+
+For the time being at least (until I can invest more time in this), Nest v7 will be supported in the `@nestjsplus/cookies@1.1.x` code line (sorry if that's not correct SEMVER; what I mean is version `1.1.x` is built on Nest 7). Nest 6 will be supported on the `1.0.x` version line.
+
+The incompatibility is due to a change in Nest's `createParamDecorator()` function, and at the moment I haven't tried to figure out how to maintain compatibility across the two.
+
+Please file an issue if you have difficulties with `v1.1.x` and Nest v7.
+
 ### Installation
 
 ```bash
@@ -23,7 +31,8 @@ npm install @nestjsplus/cookies
 ```
 
 ### Motivation
-NestJS doesn't currently have decorators for getting and setting cookies.  While it's not
+
+NestJS doesn't currently have decorators for getting and setting cookies. While it's not
 too hard to read cookies, it's convenient to have a parameter decorator to do so.
 
 ```typescript
@@ -33,13 +42,13 @@ login(@Cookies() cookies) {
 }
 ```
 
-Setting cookies is a little less straightforward.  You either need to utilize the platform-specific
+Setting cookies is a little less straightforward. You either need to utilize the platform-specific
 response (`res`) object, or write an interceptor. The former is pretty straightforward, though
-takes a non-Nest-like imperative style.  It also puts you into
+takes a non-Nest-like imperative style. It also puts you into
 [manual response mode](https://docs.nestjs.com/controllers#routing),
 meaning you can no longer rely on features like `@Render()`, `@HttpCode()` or [interceptors that modify the response](https://docs.nestjs.com/interceptors#response-mapping),
 and makes testing harder (you'll have to mock the response
-object, etc.).  The `@SetCookies()` decorator from this package wraps an interceptor
+object, etc.). The `@SetCookies()` decorator from this package wraps an interceptor
 in a declarative decorator that solves these issues.
 
 Collectively, the `@Cookies()`, `@SignedCookies()`, `@SetCookies()` and `@ClearCookies()` decorators in this package
@@ -47,11 +56,12 @@ provide a convenient set of features that make it easier to manage cookies in a 
 and minimize boilerplate code.
 
 ### See Also
+
 If you like these decorators, you may also be interested in the
 [NestJS Redirect decorator](https://github.com/nestjsplus/redirect).
 
-
 ### Importing the Decorators
+
 Import the decorators, just as you would other Nest decorators, in the controllers
 that use them as shown below:
 
@@ -66,13 +76,16 @@ export class AppController {
 ```
 
 ### Reading Cookies
+
 Reading cookies requires the [cookie-parser](https://github.com/expressjs/cookie-parser#readme)
-package to be installed.  [See here for details](#cookie-parser).
+package to be installed. [See here for details](#cookie-parser).
 Reading **signed cookies** requires that the `CookieParser` be configured with a
 [signing secret](https://github.com/expressjs/cookie-parser#cookieparsersecret-options).
 
 #### Regular (non-signed) Cookies
+
 Use the `@Cookies()` route parameter decorator to get "regular" cookies.
+
 ```typescript
 @Get('get')
 get(@Cookies() cookies): string {
@@ -85,7 +98,9 @@ This will bind an array of **all** (non-signed) cookies to the `cookies` paramet
 See [below](#accessing-specific-named-cookies) to access a named cookie.
 
 #### Signed Cookies
+
 Use the `@SignedCookies()` route parameter decorator to get signed cookies.
+
 ```typescript
 @Get('getSigned')
 getSigned(@SignedCookies() cookies) {
@@ -94,9 +109,10 @@ getSigned(@SignedCookies() cookies) {
 ```
 
 As with `@Cookies()`, this will bind an array of **all** signed cookies to the `cookies`
-parameter.  Access individual signed cookies [as described below](#accessing-specific-named-cookies).
+parameter. Access individual signed cookies [as described below](#accessing-specific-named-cookies).
 
 #### Accessing Specific (Named) Cookies
+
 Pass the name of a specific cookie in the `@Cookies()` or `@SignedCookies()` decorator
 to access a specific cookie:
 
@@ -105,9 +121,11 @@ get(@SignedCookies('cookie1') cookie1) { ... }
 ```
 
 ### Setting Cookies
-Use the `@SetCookies()` route handler *method decorator* to set cookies.
+
+Use the `@SetCookies()` route handler _method decorator_ to set cookies.
 
 Here's the API:
+
 ```typescript
 @SetCookies(
   options?: CookieOptions,
@@ -117,11 +135,13 @@ Here's the API:
 
 Here's how it works. You have two options, depending on whether the cookie settings
 are static or dynamic.
-1. For *static* cookies, where the cookie name and/or value are known at compile time,
-you can set them in the `@SetCookies()` decorator by passing a [CookieSettings](#cookie-settings)
-object.
 
-    <br/>For example:
+1.  For _static_ cookies, where the cookie name and/or value are known at compile time,
+    you can set them in the `@SetCookies()` decorator by passing a [CookieSettings](#cookie-settings)
+    object.
+
+        <br/>For example:
+
 ```typescript
 @SetCookies({name: 'cookie1', value: 'cookie 1 value'})
 @Get('set')
@@ -130,14 +150,14 @@ set() {
 }
 ```
 
-2. For *dynamic* cookies, where the cookie name and/or value are computed at run-time,
-you can provide the cookie name/value pairs to be set when the
-route handler method runs.  Provide these values by passing them on the `req._cookies`
-array property.  (The decorator creates the `_cookies` property automatically for you).
-**Note:** Of course if you are using this technique, you are de facto accessing
-the `request` object, so you must bind `@Request()` to a route parameter.
+2.  For _dynamic_ cookies, where the cookie name and/or value are computed at run-time,
+    you can provide the cookie name/value pairs to be set when the
+    route handler method runs. Provide these values by passing them on the `req._cookies`
+    array property. (The decorator creates the `_cookies` property automatically for you).
+    **Note:** Of course if you are using this technique, you are de facto accessing
+    the `request` object, so you must bind `@Request()` to a route parameter.
 
-    <br/>For example:
+        <br/>For example:
 
 ```typescript
 set(@Request() req) {
@@ -157,10 +177,12 @@ set(@Request() req) {
 ```
 
 #### Defaults and overriding
+
 You can mix and match `CookieOptions` and `CookieSettings` in the decorator and
-in the method body as needed.  This example
-shows *dynamic* cookies with defaults inherited from the decorator, and
+in the method body as needed. This example
+shows _dynamic_ cookies with defaults inherited from the decorator, and
 overrides in the body:
+
 ```typescript
 @SetCookies({httpOnly: true},
  [
@@ -169,14 +191,17 @@ overrides in the body:
  ]
 )
 ```
+
 As a result of the above, `cookie1` will be set as `HttpOnly`, but `cookie2` will not.
 
 - Set default [cookie options](#cookieoptions) by passing a
-`CookieOptions` object in the decorator. Options set on individual cookies,
-if provided, override these defaults.
+  `CookieOptions` object in the decorator. Options set on individual cookies,
+  if provided, override these defaults.
 
 #### Cookie Settings
+
 As shown above, each cookie you set has the shape:
+
 ```typescript
 interface CookieSettings {
   /**
@@ -193,14 +218,17 @@ interface CookieSettings {
   options?: CookieOptions;
 }
 ```
+
 If `options` are provided for a cookie, they completely replace any options
-specified in the `@SetCookies()` decorator.  If omitted for a cookie, they default
+specified in the `@SetCookies()` decorator. If omitted for a cookie, they default
 to options specified on the `@SetCookies()` decorator, or [Express's default cookie settings](https://expressjs.com/en/api.html#res.cookie)
 if none were set.
 
 #### CookieOptions
+
 Cookie options may be set at the method level (`@SetCookies()`), providing a set of
 defaults, or for individual cookies. In either case, they have the following shape:
+
 ```typescript
 interface CookieOptions {
   /**
@@ -242,20 +270,25 @@ interface CookieOptions {
   sameSite?: boolean | string;
 }
 ```
+
 #### Route Handler Results and Behavior
+
 The route handler otherwise proceeds as normal. It can return values, and it can
 use other route handler method decorators (such as `@Render()`) and other route
 parameter decorators (such as `@Headers()`, `@Query()`).
 
 #### Example
-Setting cookies isn't hard!  See a [full example here in the test folder](https://github.com/nestjsplus/cookies/blob/master/test/src/app.controller.ts).
+
+Setting cookies isn't hard! See a [full example here in the test folder](https://github.com/nestjsplus/cookies/blob/master/test/src/app.controller.ts).
 
 ### Clearing (deleting) Cookies
 
 Delete cookies in one of two ways:
+
 1. Use `@SetCookies()` and pass in **only** the cookie name (leave the value property
-off of the object).
+   off of the object).
 2. Use `@ClearCookies()`, passing in a comma separated list of cookies to clear.
+
 ```typescript
 @ClearCookies('cookie1', 'cookie2')
 @Get('kill')
@@ -266,18 +299,23 @@ kill() {
 ```
 
 ### Restrictions
+
 #### Express Only
-These decorators currently only work with Nest applications running on `@platform-express`.  Fastify support is not
+
+These decorators currently only work with Nest applications running on `@platform-express`. Fastify support is not
 currently available.
 
 #### Cookie Parser
-Note that reading cookies depends on the standard Express [cookie-parser]() package.  Be sure to install it
-and configure it in your app.  For example:
+
+Note that reading cookies depends on the standard Express [cookie-parser]() package. Be sure to install it
+and configure it in your app. For example:
 
 ```bash
 npm install cookie-parser
 ```
+
 and in your `main.ts` file:
+
 ```typescript
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -296,7 +334,8 @@ bootstrap();
 ```
 
 #### Decorators Can't Access `this`
-Note that decorators have access to the `class` (Controller), but not the instance.  This means that, for example,
+
+Note that decorators have access to the `class` (Controller), but not the instance. This means that, for example,
 if you want to pass a variable to a `SetCookies()` decorator, you should pass a variable set in the outer scope of
 the file (e.g., a `const` above the controller class definition), as opposed to a property on the controller class.
 

@@ -1,4 +1,4 @@
-import { createParamDecorator } from '@nestjs/common';
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 /**
  * Route handler parameter decorator.  Extracts all cookies, or a
@@ -8,9 +8,12 @@ import { createParamDecorator } from '@nestjs/common';
  * @param data (optional) string containing name of cookie to extract
  * If omitted, all cookies will be extracted.
  */
-export const Cookies = createParamDecorator((data, req) => {
-  return data ? req.cookies && req.cookies[data] : req.cookies;
-});
+export const Cookies = createParamDecorator(
+  (data: string, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest();
+    return data ? request.cookies && request.cookies[data] : request.cookies;
+  },
+);
 
 /**
  * Route handler parameter decorator.  Extracts all signed cookies, or a
@@ -20,8 +23,11 @@ export const Cookies = createParamDecorator((data, req) => {
  * @param data (optional) string containing name of signed cookie to extract
  * If omitted, all signed cookies will be extracted.
  */
-export const SignedCookies = createParamDecorator((data, req) => {
-  return data
-    ? req.signedCookies && req.signedCookies[data]
-    : req.signedCookies;
-});
+export const SignedCookies = createParamDecorator(
+  (data: string, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest();
+    return data
+      ? request.signedCookies && request.signedCookies[data]
+      : request.signedCookies;
+  },
+);

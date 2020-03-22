@@ -35,14 +35,14 @@ describe('AppController (e2e)', () => {
       .expect("cookie1 set to 'Hello World!', cookie2 set to 'c2 value'")
       .expect(res => {
         expect(res.header['set-cookie']).toHaveLength(2);
-        saveCookie1 = res.header['set-cookie'].find(
-          (cookie: string) => cookie.includes('cookie1'),
+        saveCookie1 = res.header['set-cookie'].find((cookie: string) =>
+          cookie.includes('cookie1'),
         );
         expect(saveCookie1).toMatch(/s%3AHello%20World!/);
         expect(saveCookie1).toMatch(/SameSite=Strict/);
 
-        const cookie2 = res.header['set-cookie'].find(
-          (cookie: string) => cookie.includes('cookie2'),
+        const cookie2 = res.header['set-cookie'].find((cookie: string) =>
+          cookie.includes('cookie2'),
         );
         expect(cookie2).toMatch(/c2%20value/);
       });
@@ -53,11 +53,11 @@ describe('AppController (e2e)', () => {
       .get('/cookieSet1')
       .expect(200)
       .expect(res => {
-        const cookie3 = res.header['set-cookie'].find(
-          (cookie: string) => cookie.includes('cookie3'),
+        const cookie3 = res.header['set-cookie'].find((cookie: string) =>
+          cookie.includes('cookie3'),
         );
-        const cookie4 = res.header['set-cookie'].find(
-          (cookie: string) => cookie.includes('cookie4'),
+        const cookie4 = res.header['set-cookie'].find((cookie: string) =>
+          cookie.includes('cookie4'),
         );
         expect(cookie3).toMatch(/cookie3%20value/);
         expect(cookie4).toMatch(/cookie4%20value/);
@@ -69,14 +69,14 @@ describe('AppController (e2e)', () => {
       .get('/cookieSet2')
       .expect(200)
       .expect(res => {
-        const cookie1 = res.header['set-cookie'].find(
-          (cookie: string) => cookie.includes('cookie1'),
+        const cookie1 = res.header['set-cookie'].find((cookie: string) =>
+          cookie.includes('cookie1'),
         );
-        const cookie3 = res.header['set-cookie'].find(
-          (cookie: string) => cookie.includes('cookie3'),
+        const cookie3 = res.header['set-cookie'].find((cookie: string) =>
+          cookie.includes('cookie3'),
         );
-        const cookie4 = res.header['set-cookie'].find(
-          (cookie: string) => cookie.includes('cookie4'),
+        const cookie4 = res.header['set-cookie'].find((cookie: string) =>
+          cookie.includes('cookie4'),
         );
         expect(cookie1).toMatch(/cookie1%20value/);
         expect(cookie3).toMatch(/cookie3%20value/);
@@ -89,11 +89,11 @@ describe('AppController (e2e)', () => {
       .get('/cookieSet3')
       .expect(200)
       .expect(res => {
-        const cookie3 = res.header['set-cookie'].find(
-          (cookie: string) => cookie.includes('cookie3'),
+        const cookie3 = res.header['set-cookie'].find((cookie: string) =>
+          cookie.includes('cookie3'),
         );
-        const cookie4 = res.header['set-cookie'].find(
-          (cookie: string) => cookie.includes('cookie4'),
+        const cookie4 = res.header['set-cookie'].find((cookie: string) =>
+          cookie.includes('cookie4'),
         );
         expect(cookie3).toMatch(/overridden/);
         expect(cookie4).toMatch(/cookie4%20value/);
@@ -105,11 +105,11 @@ describe('AppController (e2e)', () => {
       .get('/cookieSet4')
       .expect(200)
       .expect(res => {
-        const cookie3 = res.header['set-cookie'].find(
-          (cookie: string) => cookie.includes('cookie3'),
+        const cookie3 = res.header['set-cookie'].find((cookie: string) =>
+          cookie.includes('cookie3'),
         );
-        const cookie4 = res.header['set-cookie'].find(
-          (cookie: string) => cookie.includes('cookie4'),
+        const cookie4 = res.header['set-cookie'].find((cookie: string) =>
+          cookie.includes('cookie4'),
         );
         expect(cookie3).toMatch(/cookie3%20value/);
         expect(cookie4).toMatch(/cookie4%20value/);
@@ -160,8 +160,8 @@ describe('AppController (e2e)', () => {
       .get('/clear')
       .expect(200)
       .expect(res => {
-        const cookie1 = res.header['set-cookie'].find(
-          (cookie: string) => cookie.includes('cookie1'),
+        const cookie1 = res.header['set-cookie'].find((cookie: string) =>
+          cookie.includes('cookie1'),
         );
         expect(res.text).toMatch(/<h2>cookies cleared!<\/h2>/);
         expect(cookie1).toMatch(/cookie1=;/);
