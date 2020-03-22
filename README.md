@@ -55,6 +55,9 @@ provide a convenient set of features that make it easier to manage cookies in a 
 and minimize boilerplate code.
 
 ### See Also
+
+> **Note**: While still maintained, the `@nestsplus/redirect` package is essentially superceded by built-in support (I made the contribution) in `@nestjs/core`.
+
 If you like these decorators, you may also be interested in the
 [NestJS Redirect decorator](https://github.com/nestjsplus/redirect).
 
