@@ -16,6 +16,14 @@
   </a>
 </div>
 
+### Version Compatibility - Nest v7
+
+For the time being at least (until I can invest more time in this), Nest v7 will be supported in the `@nestjsplus/cookies@1.1.x` code line (sorry if that's not correct SEMVER; what I mean is version `1.1.x` is built on Nest 7). Nest 6 will be supported on the `1.0.x` version line.
+
+The incompatibility is due to a change in Nest's `createParamDecorator()` function, and at the moment I haven't tried to figure out how to maintain compatibility across the two.
+
+Please file an issue if you have difficulties with `v1.1.x` and Nest v7.
+
 ### Installation
 
 ```bash
