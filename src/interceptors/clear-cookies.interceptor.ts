@@ -5,27 +5,36 @@ import {
   ExecutionContext,
   CallHandler,
 } from '@nestjs/common';
+import { GqlExecutionContext } from '@nestjs/graphql';
+
 import { Observable } from 'rxjs';
 import { Response } from 'express';
 
 @Injectable()
 export class ClearCookiesInterceptor implements NestInterceptor {
-  intercept(
-    context: ExecutionContext,
-    next: CallHandler,
-  ): Promise<Observable<any>> {
-    const ctx = context.switchToHttp();
-    const response = ctx.getResponse<Response>();
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const type = context.getType<string>();
+
+    let res: Response;
+
+    if (type === 'graphql') {
+      const gqlCtx = GqlExecutionContext.create(context).getContext();
+      res = gqlCtx.res;
+    } else if (type === 'http') {
+      res = context.switchToHttp().getResponse();
+    } else {
+      throw new Error('unsupported context');
+    }
+
     const handler = context.getHandler();
     const cookieNames = [].concat(Reflect.getMetadata('cookieNames', handler));
-    const res$ = next.handle();
-    return res$.toPromise().then(res => {
-      if (cookieNames) {
-        for (const name of cookieNames) {
-          response.clearCookie(name);
-        }
+
+    if (cookieNames) {
+      for (const name of cookieNames) {
+        res.clearCookie(name);
       }
-      return res || undefined;
-    });
+    }
+
+    return next.handle();
   }
 }
