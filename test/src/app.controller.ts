@@ -2,17 +2,17 @@ import {
   Controller,
   Get,
   Headers,
-  Request,
   Query,
   Render,
+  Request,
 } from '@nestjs/common';
 import {
-  SetCookies,
   ClearCookies,
   Cookies,
+  CookieSettings,
+  SetCookies,
   SignedCookies,
-} from '../../src/decorators';
-import { CookieSettings } from '../../src/interfaces';
+} from '../../src';
 
 const tcookies: CookieSettings[] = [
   { name: 'cookie3', value: 'cookie3 value' },
