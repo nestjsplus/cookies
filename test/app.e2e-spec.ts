@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import * as CookieParser from 'cookie-parser';
+import { join } from 'path';
 import * as request from 'supertest';
 import { AppModule } from './src/app.module';
-import { join } from 'path';
-import * as CookieParser from 'cookie-parser';
 
 let agent;
 
@@ -28,7 +28,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/set should set cookie1, cookie2', async () => {
-    return await agent
+    return agent
       .get('/set')
       .expect(200)
       // tslint:disable-next-line: quotemark
@@ -49,7 +49,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/cookieSet1 should set cookie3, cookie4', async () => {
-    return await agent
+    return agent
       .get('/cookieSet1')
       .expect(200)
       .expect(res => {
@@ -65,7 +65,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/cookieSet2 should set cookie1, cookie3, cookie4', async () => {
-    return await agent
+    return agent
       .get('/cookieSet2')
       .expect(200)
       .expect(res => {
@@ -85,7 +85,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/cookieSet3 should override cookie3, set cookie4', async () => {
-    return await agent
+    return agent
       .get('/cookieSet3')
       .expect(200)
       .expect(res => {
@@ -101,7 +101,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/cookieSet4 should set cookie3, cookie4 with httpOnly', async () => {
-    return await agent
+    return agent
       .get('/cookieSet4')
       .expect(200)
       .expect(res => {
@@ -124,7 +124,7 @@ describe('AppController (e2e)', () => {
     const testCookieHeader = `${testCookieName}=${testCookieVal}`;
     const testCookieResponse = {};
     testCookieResponse[testCookieName] = testCookieVal;
-    return await agent
+    return agent
       .get('/dget')
       .set('cookie', testCookieHeader)
       .expect(200)
@@ -132,7 +132,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/sget should get signed cookie sent', async () => {
-    return await agent
+    return agent
       .get('/sget')
       .set('cookie', saveCookie1)
       .expect(200)
@@ -140,7 +140,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/defaults should set def1, def2 cookies', async () => {
-    return await agent
+    return agent
       .get('/defaults')
       .expect(200)
       // tslint:disable-next-line: quotemark
@@ -156,7 +156,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/clear should clear cookie1, render response', async () => {
-    return await agent
+    return agent
       .get('/clear')
       .expect(200)
       .expect(res => {

@@ -3,14 +3,14 @@ import unionBy = require('lodash/unionBy');
 import { CookieSettings } from '../interfaces';
 
 import {
+  CallHandler,
+  ExecutionContext,
   Injectable,
   NestInterceptor,
-  ExecutionContext,
-  CallHandler,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { Response } from 'express';
 
 @Injectable()
 export class SetCookiesInterceptor implements NestInterceptor {
