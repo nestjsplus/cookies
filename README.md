@@ -86,7 +86,7 @@ Reading **signed cookies** requires that the `CookieParser` be configured with a
 Use the `@Cookies()` route parameter decorator to get "regular" cookies.
 ```typescript
 @Get('get')
-get(@Cookies() cookies): string {
+get(@Cookies() cookies: CookiesObject): string {
   console.log('cookies: ', cookies);
   return this.appService.getHello();
 }
@@ -151,7 +151,7 @@ the `request` object, so you must bind `@Request()` to a route parameter.
     <br/>For example:
 
 ```typescript
-set(@Request() req) {
+set(@Request() req: CookieWritingRequest) {
   const cookie1Value = 'chocoloate chip';
   req._cookies = [
     {

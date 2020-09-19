@@ -60,3 +60,11 @@ export interface CookieSettings {
    */
   options?: CookieOptions;
 }
+
+export interface CookiesObject {
+  [name: string]: string;
+}
+
+export interface CookieWritingRequest {
+  _cookies: CookieSettings[];
+}
