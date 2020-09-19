@@ -151,6 +151,7 @@ the `request` object, so you must bind `@Request()` to a route parameter.
     <br/>For example:
 
 ```typescript
+@SetCookies()
 set(@Request() req) {
   const cookie1Value = 'chocoloate chip';
   req._cookies = [
